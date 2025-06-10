@@ -3,7 +3,11 @@
 //! start with main.zig instead.
 
 
-pub const strings = @import("strings.zig");
+const strings = @import("strings.zig");
+
+
+// exposed types and functions
+pub const String = strings.String;
 
 
 test {

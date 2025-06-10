@@ -53,9 +53,11 @@ pub const String = struct {
 
     /// Concat two strings together and gives and new string.
     /// This function is not well optimized and uses the stack.
-    pub fn concat(self: *Self, other: *Self) String {
-        const length = self.data.len + other.data.len;
-        var buffer: [length]u8 = undefined;
+    /// You have to give a buffer for the storage and that have to a stack buffer.
+    /// This function is in testing.
+    fn concat(self: *Self, other: String) String {
+        // const length = self.data.len + other.data.len;
+        var buffer: [self.data.len + other.data.len]u8 = undefined;
 
         var i: usize = 0;
 
@@ -68,6 +70,8 @@ pub const String = struct {
             buffer[i] = v;
             i += 1;
         }
+
+        return String.new(buffer);
     }
 
     /// returns true if string len is 0 otherwise it is false
@@ -116,3 +120,16 @@ test "strings trim functions" {
     try testing.expect(s3.trimAllWhiteSpace().equalBuffer("hey"));
 
 }
+
+
+//This test is experimental.
+
+// test "string_concat_functions" {
+//     var s1 = String.new("Hello");
+//     var s2 = String.new("Hi");
+//     var s3 = String.new("");
+
+//     try testing.expect(s1.concat(s2).equalBuffer("HelloHi"));
+//     try testing.expect(s2.concat(s3).equalBuffer("Hi"));
+//     try testing.expect(s3.concat(s3).equalBuffer(""));
+// }
