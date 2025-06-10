@@ -3,3 +3,9 @@
 //! start with main.zig instead.
 
 
+pub const strings = @import("strings.zig");
+
+
+test {
+    _ = strings;
+}
