@@ -21,15 +21,15 @@ pub const String = struct {
 
     /// Trim all the values from the string.
     /// Trim the value from left and also right.
-    pub fn trim(self: *Self, values_to_strip: []const u8) String {
+    pub fn trim(self: *Self, values_to_strip: []const u8) void {
         const data = std.mem.trim(u8, self.data, values_to_strip);
-        return String.new(data);
+        self.data = data;
     }
 
     /// Trim all the whitespace chars like ' ', '\n', '\t', etc.
-    pub fn trimAllWhiteSpace(self: *Self) String {
+    pub fn trimAllWhiteSpace(self: *Self) void {
         const data = std.mem.trim(u8, self.data, &std.ascii.whitespace);
-        return String.new(data);
+        self.data = data;
     }
 
     /// Split and gives a SplitIterator for now it is use the split function from std library.
@@ -116,17 +116,18 @@ pub const String = struct {
 };
 
 const testing = std.testing;
+const test_alloc = std.heap.page_allocator;
 
 test "strings creation" {
     // const v = ;
-    var s = String.new("hello");
+    var s = String.new(test_alloc, "hello");
     try testing.expectEqual(5, s.len());
 }
 
 test "strings length function" {
-    var s1 = String.new("");
-    var s2 = String.new(&[_]u8{});
-    var s3 = String.new("Hello");
+    var s1 = String.new(test_alloc, "");
+    var s2 = String.new(test_alloc, &[_]u8{});
+    var s3 = String.new(test_alloc, "Hello");
 
     try testing.expectEqual(0, s1.len());
     try testing.expectEqual(0, s2.len());
@@ -134,28 +135,29 @@ test "strings length function" {
 }
 
 test "strings trim functions" {
-    var s1 = String.new("");
-    var s2 = String.new("Hello ");
-    var s3 = String.new("\they\t\n");
-
+    var s1 = String.new(test_alloc, "");
+    var s2 = String.new(test_alloc, "Hello ");
+    var s3 = String.new(test_alloc, "\they\t\n");
+    s1.trim(" ");
+    s2.trim(" ");
+    s3.trimAllWhiteSpace();
     // std.debug.print("{s}\n", .{s3.trimAllWhiteSpace().data});
 
-    try testing.expect(s1.trim(" ").equal(String.new("")));
-    try testing.expect(s2.trim(" ").equal(String.new("Hello")));
-    try testing.expect(s3.trimAllWhiteSpace().equal(String.new("hey")));
+    try testing.expect(s1.equal(String.new(test_alloc, "")));
+    try testing.expect(s2.equal(String.new(test_alloc, "Hello")));
+    try testing.expect(s3.equal(String.new(test_alloc, "hey")));
 
-    try testing.expect(s1.trim(" ").equalBuffer(""));
-    try testing.expect(s2.trim(" ").equalBuffer("Hello"));
-    try testing.expect(s3.trimAllWhiteSpace().equalBuffer("hey"));
+    try testing.expect(s1.equalBuffer(""));
+    try testing.expect(s2.equalBuffer("Hello"));
+    try testing.expect(s3.equalBuffer("hey"));
 }
 
-//This test is experimental.
+
 
 test "string_concat_functions" {
-    const alloc = testing.allocator;
-    var s1 = String.new(alloc, "Hello");
-    var s2 = String.new(alloc, "Hi");
-    var s3 = String.new(alloc, "");
+    var s1 = String.new(test_alloc, "Hello");
+    var s2 = String.new(test_alloc, "Hi");
+    var s3 = String.new(test_alloc, "");
     defer s1.deinit();
     defer s2.deinit();
     defer s3.deinit();
@@ -163,7 +165,7 @@ test "string_concat_functions" {
     s1.concat(s2);
     s2.concat(s3);
     s3.concat(s3);
-    try testing.expect(std.mem.eql(u8, s1.data, "HelloHi"));
-    try testing.expect(std.mem.eql(u8, s2.data, "Hi"));
-    try testing.expect(std.mem.eql(u8, s3.data, ""));
+    try testing.expect(s1.equalBuffer("HelloHi"));
+    try testing.expect(s2.equalBuffer("Hi"));
+    try testing.expect(s3.equalBuffer(""));
 }
