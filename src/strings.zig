@@ -74,7 +74,6 @@ pub const String = struct {
         self.concat(String.new(self.alloc, str));
     }
 
-
     /// returns true if string len is 0 otherwise it is false
     pub fn isEmpty(self: *Self) bool {
         if (self.len() == 0) {
@@ -83,6 +82,34 @@ pub const String = struct {
         return false;
     }
 
+    /// Returns the index within this string of the first occurrence of the specified character.
+    /// the index of the first occurrence of the character
+    /// in the character sequence represented by this object,
+    /// or -1 if the character does not occur.
+    pub fn index(self: *Self, ch: u8) usize {
+        for (self.data, 0..) |value, i| {
+            if (value == ch) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /// Returns a string that is a substring of this string. 
+    /// The substring begins at the specified beginIndex and extends
+    /// to the character at index endIndex - 1. Thus the length of the
+    /// substring is endIndex-beginIndex.
+    /// beginIndex - the beginning index, inclusive.
+    /// endIndex - the ending index, exclusive.
+    pub fn substr(self: *Self, begin: usize, end: usize) Self {
+        const n = end - begin;
+        const value = self.alloc.alloc(u8, n) catch @panic("substr");
+        @memmove(value[0..], self.data[begin..end]);
+        return Self.new(self.alloc, value);
+    }
+
+    /// returns the string data.
+    /// The zig native string.
     pub fn toString(self: *Self) []const u8 {
         return self.data;
     }
@@ -132,7 +159,7 @@ test "string_concat_functions" {
     defer s1.deinit();
     defer s2.deinit();
     defer s3.deinit();
-    
+
     s1.concat(s2);
     s2.concat(s3);
     s3.concat(s3);
