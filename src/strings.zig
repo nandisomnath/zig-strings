@@ -113,6 +113,14 @@ pub const String = struct {
     pub fn toString(self: *Self) []const u8 {
         return self.data;
     }
+
+    /// checks if the value contains or not.
+    /// this is the default one you can always use the std library contains* functions
+    /// use toString() function to get zig native string.
+    pub fn contains(self: *Self, str: []const u8) bool {
+        return std.mem.containsAtLeast(u8, self.data, 1, str);
+    }
+
 };
 
 const testing = std.testing;
