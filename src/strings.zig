@@ -2,10 +2,21 @@ const std = @import("std");
 
 pub const String = struct {
     data: []const u8,
+    alloc: std.mem.Allocator,
+
     const Self = @This();
 
-    pub fn new(data: []const u8) Self {
-        return .{ .data = data };
+    pub fn new(alloc: std.mem.Allocator, data: []const u8) Self {
+        const value = alloc.alloc(u8, data.len) catch @panic("unable to create string");
+        @memmove(value, data);
+        return .{
+            .data = value,
+            .alloc = alloc,
+        };
+    }
+
+    pub fn deinit(self: *Self) void {
+        self.alloc.free(self.data);
     }
 
     /// Trim all the values from the string.
@@ -32,7 +43,6 @@ pub const String = struct {
         return std.mem.eql(u8, self.data, other.data);
     }
 
-
     pub fn equalBuffer(self: *const Self, buffer: []const u8) bool {
         return std.mem.eql(u8, self.data, buffer);
     }
@@ -55,31 +65,26 @@ pub const String = struct {
     /// This function is not well optimized and uses the stack.
     /// You have to give a buffer for the storage and that have to a stack buffer.
     /// This function is in testing.
-    fn concat(self: *Self, other: String) String {
-        // const length = self.data.len + other.data.len;
-        var buffer: [self.data.len + other.data.len]u8 = undefined;
-
-        var i: usize = 0;
-
-        for (self.data) |v| {
-            buffer[i] = v;
-            i += 1;
-        }
-
-        for (other.data) |v| {
-            buffer[i] = v;
-            i += 1;
-        }
-
-        return String.new(buffer);
+    pub fn concat(self: *Self, other: String) void {
+        const value = std.mem.concat(self.alloc, u8, &[_][]const u8{ self.data, other.data }) catch "";
+        self.data = value;
     }
+
+    pub fn append(self: *Self, str: []const u8) void {
+        self.concat(String.new(self.alloc, str));
+    }
+
 
     /// returns true if string len is 0 otherwise it is false
     pub fn isEmpty(self: *Self) bool {
-        if (self.data.len == 0) {
+        if (self.len() == 0) {
             return true;
         }
         return false;
+    }
+
+    pub fn toString(self: *Self) []const u8 {
+        return self.data;
     }
 };
 
@@ -91,7 +96,6 @@ test "strings creation" {
     try testing.expectEqual(5, s.len());
 }
 
-
 test "strings length function" {
     var s1 = String.new("");
     var s2 = String.new(&[_]u8{});
@@ -102,15 +106,13 @@ test "strings length function" {
     try testing.expectEqual(5, s3.len());
 }
 
-
-
 test "strings trim functions" {
     var s1 = String.new("");
     var s2 = String.new("Hello ");
     var s3 = String.new("\they\t\n");
 
     // std.debug.print("{s}\n", .{s3.trimAllWhiteSpace().data});
-    
+
     try testing.expect(s1.trim(" ").equal(String.new("")));
     try testing.expect(s2.trim(" ").equal(String.new("Hello")));
     try testing.expect(s3.trimAllWhiteSpace().equal(String.new("hey")));
@@ -118,18 +120,23 @@ test "strings trim functions" {
     try testing.expect(s1.trim(" ").equalBuffer(""));
     try testing.expect(s2.trim(" ").equalBuffer("Hello"));
     try testing.expect(s3.trimAllWhiteSpace().equalBuffer("hey"));
-
 }
-
 
 //This test is experimental.
 
-// test "string_concat_functions" {
-//     var s1 = String.new("Hello");
-//     var s2 = String.new("Hi");
-//     var s3 = String.new("");
-
-//     try testing.expect(s1.concat(s2).equalBuffer("HelloHi"));
-//     try testing.expect(s2.concat(s3).equalBuffer("Hi"));
-//     try testing.expect(s3.concat(s3).equalBuffer(""));
-// }
+test "string_concat_functions" {
+    const alloc = testing.allocator;
+    var s1 = String.new(alloc, "Hello");
+    var s2 = String.new(alloc, "Hi");
+    var s3 = String.new(alloc, "");
+    defer s1.deinit();
+    defer s2.deinit();
+    defer s3.deinit();
+    
+    s1.concat(s2);
+    s2.concat(s3);
+    s3.concat(s3);
+    try testing.expect(std.mem.eql(u8, s1.data, "HelloHi"));
+    try testing.expect(std.mem.eql(u8, s2.data, "Hi"));
+    try testing.expect(std.mem.eql(u8, s3.data, ""));
+}
