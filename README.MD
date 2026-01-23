@@ -40,8 +40,8 @@ exe.root_module.addImport("strings", strings_dep.module("strings"));
 
 ## Contrib
 
-- 1. Create a issue.
-- 2. Create a pull request.
+- Create a issue.
+- Create a pull request.
 
 Everyone is welcome to contribute.
 
