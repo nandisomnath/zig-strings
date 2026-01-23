@@ -121,6 +121,24 @@ pub const String = struct {
         return std.mem.containsAtLeast(u8, self.data, 1, str);
     }
 
+    /// Insert the string to a specific index.
+    pub fn insert(self: *Self, ix: usize, str: []const u8) void {
+        const part1 = self.data[0..ix];
+        const part2 = self.data[ix..];
+
+        const new_data = self.alloc.alloc(u8, str.len) catch @panic("insert");
+        @memmove(new_data, str);
+
+        var new_str = String.new(self.alloc, part1);
+        defer new_str.deinit();
+        new_str.append(new_data);
+        new_str.append(part2);
+        
+        const value = self.alloc.alloc(u8, new_str.len()) catch @panic("insert");
+        @memmove(value, new_str.data);
+        self.data = value;
+    }
+
 };
 
 const testing = std.testing;
@@ -176,4 +194,15 @@ test "string_concat_functions" {
     try testing.expect(s1.equalBuffer("HelloHi"));
     try testing.expect(s2.equalBuffer("Hi"));
     try testing.expect(s3.equalBuffer(""));
+}
+
+
+test "string_insert_functions" {
+    var s1 = String.new(test_alloc, "hello");
+    defer s1.deinit();
+
+    s1.insert(1, "hi");
+
+    try testing.expect(s1.equalBuffer("hhiello"));
+
 }
