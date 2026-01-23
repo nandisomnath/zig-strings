@@ -18,7 +18,7 @@ Some api is experimental.
 This is the latest available version you can use any of the working version you want.
 
 ```zsh
-zig fetch --save https://github.com/nandisomnath/zig-strings/archive/refs/tags/v0.1.0.tar.gz 
+zig fetch --save https://github.com/nandisomnath/zig-strings/archive/refs/tags/v0.3.0.tar.gz
 ```
 
 1. Use below command to build.zig
