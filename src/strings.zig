@@ -95,7 +95,7 @@ pub const String = struct {
         return -1;
     }
 
-    /// Returns a string that is a substring of this string. 
+    /// Returns a string that is a substring of this string.
     /// The substring begins at the specified beginIndex and extends
     /// to the character at index endIndex - 1. Thus the length of the
     /// substring is endIndex-beginIndex.
@@ -122,7 +122,7 @@ pub const String = struct {
     }
 
     /// Insert the string to a specific index.
-    pub  fn insert(self: *Self, ix: usize, str: []const u8) void {
+    pub fn insert(self: *Self, ix: usize, str: []const u8) void {
         const part1 = self.data[0..ix];
         const part2 = self.data[ix..];
 
@@ -133,12 +133,11 @@ pub const String = struct {
         defer new_str.deinit();
         new_str.append(new_data);
         new_str.append(part2);
-        
+
         const value = self.alloc.alloc(u8, new_str.len()) catch @panic("insert");
         @memmove(value, new_str.data);
         self.data = value;
     }
-
 };
 
 const testing = std.testing;
@@ -178,8 +177,6 @@ test "strings trim functions" {
     try testing.expect(s3.equalBuffer("hey"));
 }
 
-
-
 test "string_concat_functions" {
     var s1 = String.new(test_alloc, "Hello");
     var s2 = String.new(test_alloc, "Hi");
@@ -196,7 +193,6 @@ test "string_concat_functions" {
     try testing.expect(s3.equalBuffer(""));
 }
 
-
 test "string_insert_functions" {
     var s1 = String.new(test_alloc, "hello");
     defer s1.deinit();
@@ -204,5 +200,4 @@ test "string_insert_functions" {
     s1.insert(1, "hi");
 
     try testing.expect(s1.equalBuffer("hhiello"));
-
 }

@@ -1,6 +1,5 @@
 const std = @import("std");
 
-
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
 // runner.
@@ -16,15 +15,9 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-
     // module of this library
-    const lib_mod = b.addModule("strings", .{
-        .target = target,
-        .optimize = optimize,
-        .root_source_file = b.path("src/root.zig")
-    });
+    const lib_mod = b.addModule("strings", .{ .target = target, .optimize = optimize, .root_source_file = b.path("src/root.zig") });
 
-  
     // Now, we will create a static library based on the module we created above.
     // This creates a `std.Build.Step.Compile`, which is the build step responsible
     // for actually invoking the compiler.
@@ -38,7 +31,6 @@ pub fn build(b: *std.Build) void {
     // location when the user invokes the "install" step (the default step when
     // running `zig build`).
     b.installArtifact(lib);
-
 
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
@@ -54,7 +46,7 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_lib_unit_tests.step);
 
-   const install_docs = b.addInstallDirectory(.{
+    const install_docs = b.addInstallDirectory(.{
         .source_dir = lib.getEmittedDocs(),
         .install_dir = .prefix,
         .install_subdir = "docs",
@@ -62,5 +54,4 @@ pub fn build(b: *std.Build) void {
 
     const docs_step = b.step("docs", "Install docs into zig-out/docs");
     docs_step.dependOn(&install_docs.step);
-
 }
