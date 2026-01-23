@@ -122,7 +122,7 @@ pub const String = struct {
     }
 
     /// Insert the string to a specific index.
-    pub fn insert(self: *Self, ix: usize, str: []const u8) void {
+    pub  fn insert(self: *Self, ix: usize, str: []const u8) void {
         const part1 = self.data[0..ix];
         const part2 = self.data[ix..];
 
