@@ -2,14 +2,14 @@
 
 This is a library to make string handle easier in zig programming language.
 it uses std library for making most of it's api.
-Some api is experimental for making it better.  
+Some api is experimental.
   
 
 
 ## Features
 
 - It gives api for handling strings in easier way in zig
-- Stack and Heap strings type both are available.
+- Strings are handled using external allocator.
 - Use most of well known std library functions for the string api.
 
 ## Installation
@@ -37,5 +37,13 @@ const exe = b.addExecutable(.{
 const strings_dep = b.dependency("strings", .{});
 exe.root_module.addImport("strings", strings_dep.module("strings"));
 ```
+
+## Contrib
+
+- 1. Create a issue.
+- 2. Create a pull request.
+
+Everyone is welcome to contribute.
+
 
 
