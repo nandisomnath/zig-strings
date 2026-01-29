@@ -52,6 +52,9 @@ pub fn build(b: *std.Build) void {
         .install_subdir = "docs",
     });
 
+    const fmt_docs = b.addSystemCommand(&.{ "zig", "fmt", "src", "build.zig" });
+
     const docs_step = b.step("docs", "Install docs into zig-out/docs");
+    docs_step.dependOn(&fmt_docs.step);
     docs_step.dependOn(&install_docs.step);
 }

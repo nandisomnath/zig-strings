@@ -7,6 +7,9 @@ const strings = @import("strings.zig");
 // exposed types and functions
 pub const String = strings.String;
 
+// TODO: adding a sorting function to string library which sort strings
+// See:  https://github.com/lifthrasiir/rust-natord
+
 test {
     _ = strings;
 }
